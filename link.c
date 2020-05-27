@@ -476,7 +476,6 @@ int fs_rename()
       key = NULL;
     if(strcmp(old_name, "NOT_ENCRYPTED") == 0)
       not_encrypted = NULL;
-    printf("RENAME: %s %d %d\n", old_name, key!=NULL, not_encrypted!=NULL);
   }
 
   /* If r is OK, the ctime and mtime of old_dirp and new_dirp have been marked
@@ -494,16 +493,16 @@ int fs_rename()
   }
 	
   /* Zad5 */
-  new_ip = advance(new_dirp, new_name, IGN_PERM);
+  struct inode *curr = advance(new_dirp, new_name, IGN_PERM);
   if(ROOT_INODE == new_dirp->i_num) {
     if(!ndir && strcmp(new_name, "KEY") == 0)
-      key = new_ip;
+      key = curr;
     if(strcmp(new_name, "NOT_ENCRYPTED") == 0)
-      not_encrypted = new_ip;
-    printf("RENAME: %s %d %d\n", new_name, key!=NULL, not_encrypted!=NULL);
+      not_encrypted = curr;
   }
 
   /* Release the inodes. */
+  put_inode(curr);
   put_inode(old_dirp);
   put_inode(old_ip);
   put_inode(new_dirp);

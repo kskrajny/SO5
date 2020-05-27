@@ -43,5 +43,5 @@ EXTERN struct inode *key;
 EXTERN struct inode *not_encrypted;
 EXTERN int is_key_set;
 EXTERN int key_val;
-
+EXTERN int init;
 #endif

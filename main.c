@@ -31,17 +31,12 @@ int main(int argc, char *argv[])
  */
   int error = OK, ind, transid;
 
+  /* Zad5 */
+  init = 0;
+
   /* SEF local startup. */
   env_setargs(argc, argv);
   sef_local_startup();
-
-  /* Zad5 */
-  is_key_set = 0;
-  ino_t k, n;
-  search_dir(&inode[ROOT_INODE], "NOT_ENCRYPTED", &n, LOOK_UP, 0);	
-  search_dir(&inode[ROOT_INODE], "KEY", &k, LOOK_UP, 0);
-  not_encrypted = &inode[n];
-  key = &inode[k];
 
   while(!unmountdone || !exitsignaled) {
 	endpoint_t src;
@@ -84,6 +79,18 @@ int main(int argc, char *argv[])
 		fs_m_out.m_type = TRNS_ADD_ID(fs_m_out.m_type, transid);
 	}
 	reply(src, &fs_m_out);
+
+	/* Zad5 */
+	if(!init) {
+    	is_key_set = 0;
+    	struct inode *root = find_inode(fs_dev, ROOT_INODE);
+   	 	not_encrypted = advance(root, "NOT_ENCRYPTED", 0);
+    	key = advance(root, "KEY", 0);
+		init = 1;
+		put_inode(not_encrypted);
+		put_inode(key);
+		printf("MAIN: %d %d %d\n", key != NULL, not_encrypted != NULL, root != NULL);
+	}
   }
 
   return(OK);
