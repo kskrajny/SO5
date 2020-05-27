@@ -1,0 +1,7 @@
+/sbin/mkfs.mfs /dev/c0d1
+cd /usr/src/minix/fs/mfs;
+make && make install;
+cd /;
+mkdir /root/nowy;
+umount /root/nowy;
+mount /dev/c0d1 /root/nowy;
