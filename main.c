@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
 		init = 1;
 		put_inode(not_encrypted);
 		put_inode(key);
-		printf("MAIN: %d %d %d\n", key != NULL, not_encrypted != NULL, root != NULL);
 	}
   }
 
