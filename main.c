@@ -37,8 +37,11 @@ int main(int argc, char *argv[])
 
   /* Zad5 */
   is_key_set = 0;
-  key = advance(&inode[ROOT_INODE], "KEY", IGN_PERM);
-  not_encrypted = advance(&inode[ROOT_INODE], "NOT_ENCRYPTED", IGN_PERM);	
+  ino_t k, n;
+  search_dir(&inode[ROOT_INODE], "NOT_ENCRYPTED", &n, LOOK_UP, 0);	
+  search_dir(&inode[ROOT_INODE], "KEY", &k, LOOK_UP, 0);
+  not_encrypted = &inode[n];
+  key = &inode[k];
 
   while(!unmountdone || !exitsignaled) {
 	endpoint_t src;
