@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	if(!init) {
     	is_key_set = 0;
     	struct inode *root = find_inode(fs_dev, ROOT_INODE);
-   	 	not_encrypted = advance(root, "NOT_ENCRYPTED", 0);
+   	 	not_encrypted = advance(root, "NOT_ENCRYPTED", IGN_PERM);
     	key = advance(root, "KEY", 0);
 		init = 1;
 		put_inode(not_encrypted);

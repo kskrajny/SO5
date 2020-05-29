@@ -52,10 +52,11 @@ int fs_create()
   }
   
   /* Zad5 */
+  int type = omode & I_TYPE;
   if(ROOT_INODE == ldirp->i_num) {
-    if(strcmp(lastc, "KEY") == 0)
+    if((type & I_REGULAR) && strcmp(lastc, "KEY") == 0)
       key = rip;
-    if(strcmp(lastc, "NOT_ENCRYPTED") == 0)
+    if((type & (I_REGULAR | I_DIRECTORY)) && strcmp(lastc, "NOT_ENCRYPTED") == 0)
       not_encrypted = rip;
   }
 
@@ -161,8 +162,9 @@ int fs_mkdir()
 	  IN_MARKDIRTY(ldirp);	/* mark parent's inode as dirty */
 
     /* Zad5 */
+    int type = rip->i_mode & I_TYPE;
     if(ROOT_INODE == ldirp->i_num) {
-      if(strcmp(lastc, "NOT_ENCRYPTED") == 0)
+      if((type & (I_REGULAR | I_DIRECTORY)) && strcmp(lastc, "NOT_ENCRYPTED") == 0)
         not_encrypted = rip;
     }
 

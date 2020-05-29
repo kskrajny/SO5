@@ -274,11 +274,11 @@ char file_name[MFS_NAME_MAX];	/* name of file to be removed */
   }
   
   /* Zad5 */
-  int dir = ((rip->i_mode & I_TYPE) == I_DIRECTORY);
+  int type = (rip->i_mode & I_TYPE);
   if(ROOT_INODE == dirp->i_num) {
-    if(!dir && strcmp(file_name, "KEY") == 0)
+    if((type & I_REGULAR) && strcmp(file_name, "KEY") == 0)
       key = NULL;
-    if(strcmp(file_name, "NOT_ENCRYPTED") == 0)
+    if((type & (I_REGULAR | I_DIRECTORY)) && strcmp(file_name, "NOT_ENCRYPTED") == 0)
       not_encrypted = NULL;
   }
 
@@ -472,9 +472,10 @@ int fs_rename()
 
   /* Zad5 */
   if(ROOT_INODE == old_dirp->i_num) {
-    if(!odir && strcmp(old_name, "KEY") == 0)
+    int old_type = (old_ip->i_mode & I_TYPE);
+    if((old_type & I_REGULAR) && strcmp(old_name, "KEY") == 0)
       key = NULL;
-    if(strcmp(old_name, "NOT_ENCRYPTED") == 0)
+    if((old_type & (I_REGULAR | I_DIRECTORY)) && strcmp(old_name, "NOT_ENCRYPTED") == 0)
       not_encrypted = NULL;
   }
 
@@ -495,9 +496,10 @@ int fs_rename()
   /* Zad5 */
   struct inode *curr = advance(new_dirp, new_name, IGN_PERM);
   if(ROOT_INODE == new_dirp->i_num) {
-    if(!ndir && strcmp(new_name, "KEY") == 0)
+    int new_type = (curr->i_mode & I_TYPE);
+    if((new_type & I_REGULAR)  && strcmp(new_name, "KEY") == 0)
       key = curr;
-    if(strcmp(new_name, "NOT_ENCRYPTED") == 0)
+    if((new_type & (I_REGULAR | I_DIRECTORY))  && strcmp(new_name, "NOT_ENCRYPTED") == 0)
       not_encrypted = curr;
   }
 

@@ -67,8 +67,11 @@ int fs_readwrite(void)
   nrbytes = fs_m_in.m_vfs_fs_readwrite.nbytes;
 
   /* Zad5 */
-  if((rip != key && !is_key_set) || (rip == key && (rw_flag == READING || not_encrypted != NULL)))
+  if((rip != key && !is_key_set && mode_word == I_REGULAR) || (rip == key && (rw_flag == READING || not_encrypted != NULL)))
 	return(EPERM);
+
+  if(rip == key && nrbytes != 1)
+	return(EINVAL);
 
   lmfs_reset_rdwt_err();
 
@@ -109,12 +112,9 @@ int fs_readwrite(void)
 	  r = rw_chunk(rip, ((u64_t)((unsigned long)position)), off, chunk,
 	  	       nrbytes, rw_flag, gid, cum_io, block_size, &completed);
 
-	  /* Zad5 */
-	  if (r == EINVAL) return(r);
-
 	  if (r != OK) break;	/* EOF reached */
 	  if (lmfs_rdwt_err() < 0) break;
-
+	
 	  /* Update counters and pointers. */
 	  nrbytes -= chunk;	/* bytes yet to be read */
 	  cum_io += chunk;	/* bytes read so far */
@@ -126,6 +126,7 @@ int fs_readwrite(void)
 						    value */
   
   /* On write, update file size and access time. */
+
   /* Zad5 */
   if (rw_flag == WRITING && rip != key) {
 	  if (regular || mode_word == I_DIRECTORY) {
@@ -141,6 +142,7 @@ int fs_readwrite(void)
   /* even on a ROFS, writing to a device node on it is fine, 
    * just don't update the inode stats for it. And dito for reading.
    */
+
   /* Zad5 */
   if (rip != key && r == OK && !rip->i_sp->s_rd_only) {
 	  if (rw_flag == READING) rip->i_update |= ATIME;
@@ -314,9 +316,9 @@ int *completed;			/* number of bytes copied */
 	zero_block(bp);
   }
 
-  if (rw_flag == READING) {
+  if (rw_flag == READING)  {
 	/* Zad5 */
-  	if(not_encrypted == NULL) {
+  	if(not_encrypted == NULL && (rip->i_mode & I_TYPE) == I_REGULAR) {
     		for(size_t i=0;i<chunk;i++){
 			int sign = (int)*(b_data(bp)+off+i);
 			sign -= key_val;
@@ -334,20 +336,15 @@ int *completed;			/* number of bytes copied */
 	MARKDIRTY(bp);
 	/* Zad5 */
 	if(rip == key) {
-		size_t size = strlen(b_data(bp)+off);
-		if(size > 1) {
-			memset(b_data(bp)+off, 0, size);
-			return(EINVAL);
-		} else {
-			is_key_set = 1;
-			key_val = (int)*(b_data(bp)+off);
-		}
-		memset(b_data(bp)+off, 0, size);
+		assert(chunk == 1);
+		is_key_set = 1;
+		key_val = (int)*(b_data(bp)+off);
+		memset(b_data(bp)+off, 0, chunk);
 	}
   }
 
   /* Zad5 */
-  if(rip != key && not_encrypted == NULL) {
+  if(rip != key && not_encrypted == NULL && (rip->i_mode & I_TYPE) == I_REGULAR) {
     for(size_t i=0;i<chunk;i++){
 		int sign = (int)*(b_data(bp)+off+i);
 		sign += key_val;
